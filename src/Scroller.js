@@ -9,7 +9,7 @@ import React, { Component } from "react";
 import { View } from "react-native";
 import PropTypes from "prop-types";
 import { RecyclerListView, DataProvider, LayoutProvider } from "recyclerlistview";
-import moment from "moment";
+import dayjs from "dayjs";
 
 export default class CalendarScroller extends Component {
   static propTypes = {
@@ -128,7 +128,7 @@ export default class CalendarScroller extends Component {
 
   // Scroll to given date, and check against min and max date if available.
   scrollToDate = (date) => {
-    let targetDate = moment(date).subtract(Math.round(this.state.numVisibleItems / 2) - 1, "days");
+    let targetDate = dayjs(date).subtract(Math.round(this.state.numVisibleItems / 2) - 1, "days");
     const {
       minDate,
       maxDate,
@@ -174,7 +174,7 @@ export default class CalendarScroller extends Component {
     const data = [];
     let _newStartDate = newStartDate;
     if (minDate && newStartDate.isBefore(minDate, "day")) {
-      _newStartDate = moment(minDate);
+      _newStartDate = dayjs(minDate);
     }
     for (let i = 0; i < this.state.numDays; i++) {
       let date = _newStartDate.clone().add(i, "days");
@@ -219,9 +219,9 @@ export default class CalendarScroller extends Component {
       visibleEndDate: _visEndDate,
     } = this.state;
     const visibleStartIndex = all[0];
-    const visibleStartDate = data[visibleStartIndex] ? data[visibleStartIndex].date : moment();
+    const visibleStartDate = data[visibleStartIndex] ? data[visibleStartIndex].date : dayjs();
     const visibleEndIndex = Math.min(visibleStartIndex + numVisibleItems - 1, data.length - 1);
-    const visibleEndDate = data[visibleEndIndex] ? data[visibleEndIndex].date : moment();
+    const visibleEndDate = data[visibleEndIndex] ? data[visibleEndIndex].date : dayjs();
 
     const {
       updateMonthYear,
@@ -301,9 +301,9 @@ export default class CalendarScroller extends Component {
       visibleEndIndex,
     } = this.state;
     const prevStartDate = visibleStartDate ? visibleStartDate
-      : (data[visibleStartIndex] ? data[visibleStartIndex].date : moment());
+      : (data[visibleStartIndex] ? data[visibleStartIndex].date : dayjs());
     const prevEndDate = visibleEndDate ? visibleEndDate
-      : (data[visibleEndIndex] ? data[visibleEndIndex].date : moment());
+      : (data[visibleEndIndex] ? data[visibleEndIndex].date : dayjs());
 
     this.setState({
       prevStartDate,

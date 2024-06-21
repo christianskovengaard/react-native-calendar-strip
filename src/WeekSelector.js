@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { Image, TouchableOpacity } from "react-native";
 
 import moment from "moment";
+import dayjs from "dayjs";
+
 
 import styles from "./Calendar.style.js";
 
