@@ -4,10 +4,12 @@
 
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import moment from "moment";
-
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import { Text, View, Animated, Easing, LayoutAnimation, TouchableOpacity } from "react-native";
 import styles from "./Calendar.style.js";
+
+dayjs.extend(duration);
 
 class CalendarDay extends Component {
   static propTypes = {
@@ -168,7 +170,7 @@ class CalendarDay extends Component {
   }
 
   //Function to check if provided date is the same as selected one, hence date is selected
-  //using isSame moment query with "day" param so that it check years, months and day
+  //using isSame dayjs query with "day" param so that it check years, months and day
   isDateSelected = (date, selectedDate) => {
     if (!date || !selectedDate) {
       return date === selectedDate;
@@ -250,7 +252,7 @@ class CalendarDay extends Component {
       if (markedDates.length === 0) {
         return {};
       }
-      return markedDates.find(md => moment(day).isSame(md.date, "day")) || {};
+      return markedDates.find(md => dayjs(day).isSame(md.date, "day")) || {};
     } else if (markedDates instanceof Function) {
       return markedDates(day) || {};
     }

@@ -6,7 +6,9 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { View, Animated, PixelRatio } from "react-native";
 
-import moment from "moment";
+import dayjs from "dayjs";
+import updateLocale from 'dayjs/plugin/updateLocale';
+import isoWeek from "dayjs/plugin/isoWeek";
 
 import CalendarHeader from "./CalendarHeader";
 import CalendarDay from "./CalendarDay";
@@ -18,6 +20,10 @@ import styles from "./Calendar.style.js";
  * Class CalendarStrip that is representing the whole calendar strip and contains CalendarDay elements
  *
  */
+
+dayjs.extend(updateLocale);
+dayjs.extend(isoWeek);
+
 class CalendarStrip extends Component {
   static propTypes = {
     style: PropTypes.any,
@@ -128,7 +134,7 @@ class CalendarStrip extends Component {
 
     if (props.locale) {
       if (props.locale.name && props.locale.config) {
-        moment.updateLocale(props.locale.name, props.locale.config);
+        dayjs.updateLocale(props.locale.name, props.locale.config);
       } else {
         throw new Error(
           "Locale prop is not in the correct format. \b Locale has to be in form of object, with params NAME and CONFIG!"
@@ -200,13 +206,13 @@ class CalendarStrip extends Component {
     );
   }
 
-  // Check whether two datetimes are of the same value.  Supports Moment date,
+  // Check whether two datetimes are of the same value.  Supports Dayjs date,
   // JS date, or ISO 8601 strings.
   // Returns true if the datetimes values are the same; false otherwise.
   compareDates = (date1, date2) => {
     if (date1 && date1.valueOf && date2 && date2.valueOf)
     {
-      return moment(date1).isSame(date2, "day");
+      return dayjs(date1).isSame(date2, "day");
     } else {
       return JSON.stringify(date1) === JSON.stringify(date2);
     }
@@ -214,7 +220,7 @@ class CalendarStrip extends Component {
 
   //Function that checks if the locale is passed to the component and sets it to the passed date
   setLocale = date => {
-    let _date = date && moment(date);
+    let _date = date && dayjs(date);
     if (_date) {
       _date.set({ hour: 12}); // keep date the same regardless of timezone shifts
       if (this.props.locale) {
@@ -228,9 +234,9 @@ class CalendarStrip extends Component {
     if (this.props.startingDate) {
       return this.setLocale(this.props.startingDate);
     } else {
-      // Fallback when startingDate isn't provided. However selectedDate
+      // Fallback when startingDate isn't provided. However, selectedDate
       // may also be undefined, defaulting to today's date.
-      let date = this.setLocale(moment(this.props.selectedDate));
+      let date = this.setLocale(dayjs(this.props.selectedDate));
       return this.props.useIsoWeekday ? date.startOf("isoweek") : date;
     }
   }
@@ -265,8 +271,8 @@ class CalendarStrip extends Component {
     if (!this.props.updateWeek) {
       return originalStartDate;
     }
-    let startingDate = moment(newStartDate).startOf("day");
-    let daysDiff = startingDate.diff(originalStartDate.startOf("day"), "days");
+    let startingDate = dayjs(newStartDate).startOf("day");
+    let daysDiff = startingDate.diff(originalStartDate.startOf("day"), "day");
     if (daysDiff === 0) {
       return originalStartDate;
     }
@@ -289,8 +295,8 @@ class CalendarStrip extends Component {
     }
 
     this.animations = [];
-    let startingDate = moment(date);
-    startingDate = this.props.useIsoWeekday ? startingDate.startOf("isoweek") : startingDate;
+    let startingDate = dayjs(date);
+    startingDate = this.props.useIsoWeekday ? startingDate.startOf("isoWeek") : startingDate;
     const days = this.createDays(startingDate);
     this.setState({startingDate, ...days});
   }
@@ -312,7 +318,7 @@ class CalendarStrip extends Component {
     this.props.onDateSelected && this.props.onDateSelected(_selectedDate);
   }
 
-  // Get the currently selected date (Moment JS object)
+  // Get the currently selected date (Dayjs JS object)
   getSelectedDate = () => {
     if (!this.state.selectedDate || this.state.selectedDate.valueOf() === 0) {
       return; // undefined (no date has been selected yet)
@@ -322,11 +328,11 @@ class CalendarStrip extends Component {
 
   // Set the selected date.  To clear the currently selected date, pass in 0.
   setSelectedDate = date => {
-    let mDate = moment(date);
+    let mDate = dayjs(date);
     this.onDateSelected(mDate);
     if (this.props.scrollToOnSetSelectedDate) {
       // Scroll to selected date, centered in the week
-      const scrolledDate = moment(mDate);
+      const scrolledDate = dayjs(mDate);
       scrolledDate.subtract(Math.floor(this.props.numDaysInWeek / 2), "days");
       this.scroller.scrollToDate(scrolledDate);
     }
@@ -474,7 +480,7 @@ class CalendarStrip extends Component {
       // Center start date in scroller.
       _startingDate = startingDate.clone().subtract(numDays/2, "days");
       if (minDate && _startingDate.isBefore(minDate, "day")) {
-        _startingDate = moment(minDate);
+        _startingDate = dayjs(minDate);
       }
     }
 
@@ -482,7 +488,7 @@ class CalendarStrip extends Component {
       let date;
       if (useIsoWeekday) {
         // isoWeekday starts from Monday
-        date = this.setLocale(_startingDate.clone().isoWeekday(i + 1));
+        date = this.setLocale(_startingDate.clone().isoWeek(i + 1));
       } else {
         date = this.setLocale(_startingDate.clone().add(i, "days"));
       }
@@ -575,7 +581,7 @@ class CalendarStrip extends Component {
 
   render() {
     // calendarHeader renders above or below of the dates & left/right selectors if dates are shown.
-    // However if dates are hidden, the header shows between the left/right selectors.
+    // However, if dates are hidden, the header shows between the left/right selectors.
     return (
       <View
         style={[
